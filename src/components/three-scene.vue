@@ -27,6 +27,7 @@ export default {
   },
   methods: {
     initThreeScene() {
+      controls.autoRotate = true;
       camera.position.set(0, 0, 100);
       renderer.setSize(windowWidth, windowHeight);
       scene.add(camera);
@@ -34,14 +35,26 @@ export default {
       this.animate();
     },
     addLighting() {
-      const light = new THREE.AmbientLight(0xffffff, 10);
+      const light = new THREE.AmbientLight(0xffffff, 100);
       scene.add(light);
+    },
+    getRandomColour() {
+      return new THREE.Color(Math.random() * 0xffffff);
     },
     loadMapModel() {
       gltfLoader.load('./assets/glb/london-map.glb', (asset) => {
         const { scenes } = asset;
         const [model] = scenes;
         scene.add(model);
+        const mapMaterial = new THREE.MeshBasicMaterial();
+        model.traverse((child) => {
+          const c = child;
+          c.material = mapMaterial;
+          if (c.isMesh) {
+            const color = this.getRandomColour();
+            c.material.color = color;
+          }
+        });
       });
     },
     animate() {
