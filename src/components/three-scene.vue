@@ -17,6 +17,7 @@ const camera = new THREE.PerspectiveCamera(75, windowWidth / windowHeight, 0.01,
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const controls = new OrbitControls(camera, renderer.domElement);
 const gltfLoader = new GLTFLoader();
+let mapMesh;
 
 export default {
   name: 'ThreeScene',
@@ -25,10 +26,19 @@ export default {
     this.loadMapModel();
     this.addLighting();
   },
+  props: {
+    selectedData: Array,
+  },
+  watch: {
+    selectedData() {
+      this.updateDepths();
+    },
+  },
   methods: {
     initThreeScene() {
       controls.autoRotate = true;
       camera.position.set(0, 0, 100);
+      // camera.up.set(-1, 0, 0).normalize();
       renderer.setSize(windowWidth, windowHeight);
       scene.add(camera);
       this.$refs.threeScene.appendChild(renderer.domElement);
@@ -45,16 +55,37 @@ export default {
       gltfLoader.load('./assets/glb/london-map.glb', (asset) => {
         const { scenes } = asset;
         const [model] = scenes;
-        scene.add(model);
+        mapMesh = model;
+        scene.add(mapMesh);
+        mapMesh.rotation.x = Math.PI / 2;
         const mapMaterial = new THREE.MeshBasicMaterial();
-        model.traverse((child) => {
+        mapMesh.traverse((child) => {
           const c = child;
-          c.material = mapMaterial;
+          // console.log(c);
+          c.material = mapMaterial.clone();
           if (c.isMesh) {
             const color = this.getRandomColour();
             c.material.color = color;
           }
         });
+      });
+    },
+    updateDepths() {
+      this.selectedData.forEach((borough) => {
+        // console.log(borough.area_code);
+        if (mapMesh) {
+          mapMesh.traverse((child) => {
+            if (child.name === borough.area_code) {
+              console.log(child);
+              child.scale.set(
+                child.scale.x,
+                child.scale.y,
+                1 + (0.0025 * borough.total_cases),
+              );
+              console.log('match found');
+            }
+          });
+        }
       });
     },
     animate() {
@@ -70,5 +101,5 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss" scoped>
 </style>
