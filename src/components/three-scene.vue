@@ -5,6 +5,7 @@
 
 <script>
 import * as THREE from 'three';
+import TWEEN from '@tweenjs/tween.js';
 // eslint-disable-next-line no-unused-vars
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -72,16 +73,14 @@ export default {
     },
     updateDepths() {
       this.selectedData.forEach((borough) => {
-        // console.log(borough.area_code);
         if (mapMesh) {
           mapMesh.traverse((child) => {
             if (child.name === borough.area_code) {
-              console.log(child);
-              child.scale.set(
-                child.scale.x,
-                child.scale.y,
-                1 + (0.0025 * borough.total_cases),
-              );
+              new TWEEN.Tween(child.scale).to({
+                z: 1 + (0.0025 * borough.total_cases),
+              }, 1000)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start();
               console.log('match found');
             }
           });
@@ -90,6 +89,7 @@ export default {
     },
     animate() {
       const render = () => {
+        TWEEN.update();
         controls.update();
         requestAnimationFrame(render);
         renderer.render(scene, camera);
