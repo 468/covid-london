@@ -8,10 +8,12 @@
     >
       ✕
     </button>
-    <p>Borough: {{ selectedBoroughData.area_name }}</p>
-    <p>Date: {{ selectedBoroughData.date}}</p>
-    <p>New cases: {{ selectedBoroughData.new_cases}}</p>
-    <p>Total cases: {{ selectedBoroughData.total_cases}}</p>
+    <ul class="details">
+      <li><p>Borough: {{ selectedBoroughData.area_name }}</p></li>
+      <li><p>Date: {{ selectedBoroughData.date}}</p></li>
+      <li><p>New cases: {{ selectedBoroughData.new_cases}}</p></li>
+      <li><p>Total cases: {{ selectedBoroughData.total_cases}}</p></li>
+    </ul>
   </div>
 </template>
 
@@ -68,11 +70,19 @@ export default {
         color: #ffffff;
       }
 
+      ul {
+        list-style-type: none;
+        padding-left: 5px;
+
+        li:first-child p {
+          text-decoration: underline
+        }
+      }
+
       p {
-        font-size: 0.8em;
+        font-size: 0.9em;
         margin: 0;
         padding: 0;
-        font-weight: bold;
       }
   }
 </style>

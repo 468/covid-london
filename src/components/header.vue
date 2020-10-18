@@ -17,7 +17,7 @@ export default {
     z-index: 3;
     color: #ffffff;
     text-align: left;
-    padding: 25px;
+    padding: 50px;
     margin: 0;
     top: 0;
     left: 0;
