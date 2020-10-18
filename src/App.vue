@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <Header />
     <ThreeScene
       :selectedData="selectedData"
       :selectedBoroughData="selectedBoroughData"
@@ -24,6 +25,7 @@ import CASE_DATA from '@/data/london-cases.json';
 import ThreeScene from './components/three-scene.vue';
 import DatePicker from './components/date-picker.vue';
 import CaseBreakdown from './components/case-breakdown.vue';
+import Header from './components/header.vue';
 
 export default {
   name: 'App',
@@ -31,6 +33,7 @@ export default {
     ThreeScene,
     DatePicker,
     CaseBreakdown,
+    Header,
   },
   data() {
     return {
@@ -65,7 +68,7 @@ export default {
       this.animateDepths = bool;
     },
     hideBoroughData() {
-      this.animateDepths = true;
+      // this.animateDepths = true;
       this.boroughCode = null;
       this.selectedBoroughData = {};
     },
@@ -86,5 +89,6 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
+    background-image: linear-gradient(#111111, #222222);
   }
 </style>

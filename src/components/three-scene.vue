@@ -27,7 +27,7 @@ const vertexShader = `
     void main() {
       vAlpha = alpha;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-      gl_PointSize = 5.0;
+      gl_PointSize = 7.0;
       gl_Position = projectionMatrix * mvPosition;
     }
 `;
@@ -38,7 +38,7 @@ const fragmentShader = `
     uniform float u_time;
 
     void main() {
-      gl_FragColor = vec4(sin(u_time),0.1,0.1,0.1);
+      gl_FragColor = vec4(sin(u_time),0.1,0.1,1.0);
     }
 `;
 
@@ -57,7 +57,7 @@ const shaderMaterial = new THREE.ShaderMaterial({
 // set globals used by Three
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 const raycaster = new THREE.Raycaster();
 const sceneObjects = [];
 const allPoints = [];
@@ -162,6 +162,12 @@ export default {
       }, 10000)
         .easing(TWEEN.Easing.Quartic.InOut)
         .start();
+
+      const geometry = new THREE.BoxGeometry(100, 50, 100);
+      const material = new THREE.MeshStandardMaterial({ color: 0x111111 });
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.setY(-25.1);
+      // scene.add(cube);
     },
     addEnvMap() {
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -179,8 +185,6 @@ export default {
       const light = new THREE.AmbientLight(0xffffff, 1);
       scene.add(light);
       this.addEnvMap();
-      // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-      // scene.add(directionalLight);
     },
     getRandomColour() {
       return new THREE.Color(Math.random() * 0xffffff);
@@ -195,11 +199,11 @@ export default {
         // mapMesh.rotation.x = Math.PI / 2;
         scene.updateMatrixWorld();
         const mapMaterial = new THREE.MeshPhysicalMaterial({
-          roughness: 0,
-          metalness: 0.4,
+          roughness: 0.9,
+          metalness: 0.3,
           clearcoat: 0.9,
           transparent: true,
-          transmission: 0.9,
+          transmission: 0.95,
           side: THREE.DoubleSide,
           // normalMap: new THREE.TextureLoader()
           //  .load('./assets/textures/empty.jpeg'),
@@ -210,10 +214,6 @@ export default {
           c.castShadow = true;
           c.material = mapMaterial.clone();
           if (c.isMesh) {
-            // const points = this.fillWithPoints(c.geometry, 10);
-            // const points = this.randomPointsInBufferGeometry(c.geometry, 100);
-            // console.log(points);
-            // this.addPointsToMesh(points, c);
             const color = this.getRandomColour();
             c.material.color = color;
             sceneObjects.push(c);

@@ -4,11 +4,11 @@
   >
     <button
       @click="close"
-      id='close'
+      class='close'
     >
-      x
+      ✕
     </button>
-    <h1>Borough: {{ selectedBoroughData.area_name }}</h1>
+    <p>Borough: {{ selectedBoroughData.area_name }}</p>
     <p>Date: {{ selectedBoroughData.date}}</p>
     <p>New cases: {{ selectedBoroughData.new_cases}}</p>
     <p>Total cases: {{ selectedBoroughData.total_cases}}</p>
@@ -52,16 +52,27 @@ export default {
       right: 0;
       width: 25%;
       margin: 25px;
-      padding: 5px;
-      background-color: #333333;
+      padding: 15px;
       height: auto;
       color: #ffffff;
       text-align: left;
+      border: 1px solid #ffffff;
+      display: flex;
+      flex-direction: column;
 
-      h1 {
-        font-size: 1em;
+      .close {
+        align-self: flex-end;
+        width: 25px;
+        background: none;
+        border: none;
+        color: #ffffff;
+      }
+
+      p {
+        font-size: 0.8em;
         margin: 0;
         padding: 0;
+        font-weight: bold;
       }
   }
 </style>
