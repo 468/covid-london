@@ -3,11 +3,13 @@
     id="tooltip-container"
     ref="tooltipContainer"
   >
-    <div v-if="hoveredBorough">
-        <p class="tooltip">
-            {{ boroughName }}
-        </p>
-    </div>
+    <transition name="fade">
+      <div v-if="hoveredBorough">
+          <p class="tooltip">
+              {{ boroughName }}
+          </p>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -58,13 +60,16 @@ export default {
     z-index: 3;
     width: auto;
     height: auto;
-    font-size: 0.75em;
-    border: 1px solid #ffffff;
     opacity: 0.75;
     top: 0;
     left: 0;
-    padding: 0 10px;
-    background-color: #000000;
-    color: #ffffff;
+
+      .tooltip {
+        border: 1px solid #ffffff;
+        background-color: #000000;
+        color: #ffffff;
+        padding: 10px 15px;
+        font-size: 0.75em;
+      }
   }
 </style>
