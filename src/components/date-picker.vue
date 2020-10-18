@@ -1,13 +1,19 @@
 <template>
   <div id="date-picker">
-    <button @click="toggleState">{{ toggleText }}</button>
     <vue-slider
         v-model="dateIndex"
         :data="dateArray"
         @change="onUpdate"
         :tooltip="'always'"
+        v-bind="options"
         ref="vueSlider"
     ></vue-slider>
+     <button
+      @click="toggleState"
+      class="toggler"
+    >
+      {{ toggleText }}
+    </button>
   </div>
 </template>
 
@@ -16,7 +22,7 @@
 import moment from 'moment';
 import CASE_DATA from '@/data/london-cases.json';
 import VueSlider from 'vue-slider-component';
-import 'vue-slider-component/theme/default.css';
+import 'vue-slider-component/theme/antd.css';
 
 export default {
   name: 'DatePicker',
@@ -33,6 +39,10 @@ export default {
     return {
       dateIndex: 0,
       dateArray: [],
+      options: {
+        dotSize: 0,
+        height: 8,
+      },
     };
   },
   watch: {
@@ -55,7 +65,7 @@ export default {
   computed: {
     // might not use.
     toggleText() {
-      return this.animating ? 'pause' : 'play';
+      return this.animating ? 'Pause' : 'Play';
     },
     formattedDate() {
       return this.dateArray[this.dateIndex];
@@ -102,10 +112,21 @@ export default {
 <style lang="scss" scoped>
   #date-picker {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     bottom: 100px;
+    height: 100px;
     width: 50%;
-    margin: 25px;
+    margin: 0 auto;
+
+    .toggler {
+      position: fixed;
+      margin: 0 auto;
+      bottom: 40px;
+      border: 1px solid #ffffff;
+      background: none;
+      color: #ffffff;
+      padding: 5px;
+    }
 
     .selected-date {
         color: #ffffff;

@@ -1,0 +1,36 @@
+<template>
+  <header id="header">
+    <h1>Coronavirus Cases</h1>
+    <h2>By London Borough, Over Time</h2>
+  </header>
+</template>
+
+<script>
+export default {
+  name: 'Header',
+};
+</script>
+
+<style lang="scss" scoped>
+  #header {
+    position: absolute;
+    z-index: 3;
+    color: #ffffff;
+    text-align: left;
+    padding: 25px;
+    margin: 0;
+    top: 0;
+    left: 0;
+
+    h1 {
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    h2 {
+        padding-top: 0;
+        margin-top: 0;
+    }
+
+  }
+</style>
