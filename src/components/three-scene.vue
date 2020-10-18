@@ -164,7 +164,9 @@ export default {
     },
     addLighting() {
       const light = new THREE.AmbientLight(0xffffff, 1);
+      const dirLight = new THREE.DirectionalLight(0xffffbb, 1);
       scene.add(light);
+      scene.add(dirLight);
       this.addEnvMap();
     },
     getRandomColour() {
@@ -178,11 +180,11 @@ export default {
         scene.add(mapMesh);
         mapMesh.castShadow = false;
         const mapMaterial = new THREE.MeshPhysicalMaterial({
-          roughness: 0.9,
-          metalness: 0.3,
-          clearcoat: 0.9,
+          roughness: 0.01,
+          metalness: 0.4,
+          clearcoat: 1,
           transparent: true,
-          transmission: 0.95,
+          transmission: 1,
           side: THREE.DoubleSide,
         });
         mapMesh.traverse((child) => {
