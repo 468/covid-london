@@ -40,13 +40,13 @@ export default {
         (data) => data.date === date,
       );
       if (this.boroughCode) {
-        this.showBoroughData(this.boroughCode);
+        this.showBoroughData();
       }
     },
-    showBoroughData(boroughCode) {
-      this.boroughCode = boroughCode;
+    showBoroughData(borough = this.boroughCode) {
+      if (borough !== this.boroughCode) { this.boroughCode = borough; }
       this.selectedBoroughData = this.selectedData.find(
-        (data) => data.area_code === boroughCode,
+        (data) => data.area_code === this.boroughCode,
       );
     },
   },
