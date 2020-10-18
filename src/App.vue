@@ -31,6 +31,7 @@ export default {
       CASE_DATA,
       selectedData: [],
       selectedBoroughData: {},
+      boroughCode: null,
     };
   },
   methods: {
@@ -38,8 +39,12 @@ export default {
       this.selectedData = this.CASE_DATA.filter(
         (data) => data.date === date,
       );
+      if (this.boroughCode) {
+        this.showBoroughData(this.boroughCode);
+      }
     },
     showBoroughData(boroughCode) {
+      this.boroughCode = boroughCode;
       this.selectedBoroughData = this.selectedData.find(
         (data) => data.area_code === boroughCode,
       );
