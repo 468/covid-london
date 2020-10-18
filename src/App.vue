@@ -2,9 +2,13 @@
   <div id="app">
     <ThreeScene
       :selectedData="selectedData"
+      @setBorough="showBoroughData"
     />
     <DatePicker
       @setDate="setDataToDate"
+    />
+    <CaseBreakdown
+      :selectedBoroughData="selectedBoroughData"
     />
   </div>
 </template>
@@ -13,27 +17,31 @@
 import CASE_DATA from '@/data/london-cases.json';
 import ThreeScene from './components/three-scene.vue';
 import DatePicker from './components/date-picker.vue';
+import CaseBreakdown from './components/case-breakdown.vue';
 
 export default {
   name: 'App',
   components: {
     ThreeScene,
     DatePicker,
+    CaseBreakdown,
   },
   data() {
     return {
       CASE_DATA,
       selectedData: [],
+      selectedBoroughData: {},
     };
-  },
-  mounted() {
-    console.log('here');
-    console.log(this.selectedData);
   },
   methods: {
     setDataToDate(date) {
       this.selectedData = this.CASE_DATA.filter(
         (data) => data.date === date,
+      );
+    },
+    showBoroughData(boroughCode) {
+      this.selectedBoroughData = this.selectedData.find(
+        (data) => data.area_code === boroughCode,
       );
     },
   },

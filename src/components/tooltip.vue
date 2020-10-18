@@ -36,9 +36,6 @@ export default {
       this.moveToolTip();
     },
   },
-  mounted() {
-    console.log(BOROUGH_KEYS);
-  },
   computed: {
     boroughName() {
       return BOROUGH_KEYS[this.hoveredBorough];
