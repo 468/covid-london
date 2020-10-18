@@ -60,6 +60,8 @@ export default {
       window.addEventListener('mousemove', this.onMouseMove);
       window.addEventListener('touchmove', this.onTouchMove);
       window.addEventListener('resize', this.onWindowResize, false);
+      window.addEventListener('click', this.onClick);
+      // add mouse
     },
     onMouseMove(e) {
       e.preventDefault();
@@ -76,6 +78,11 @@ export default {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+    },
+    onClick() {
+      if (this.hoveredBorough) {
+        this.$emit('setBorough', this.hoveredBorough);
+      }
     },
     updateMousePosition() {
       // might not need to use rect here.
@@ -156,7 +163,7 @@ export default {
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
               */
-              console.log('match found');
+              // console.log('match found');
             }
           });
         }
