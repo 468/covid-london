@@ -3,11 +3,17 @@
     <Header
       :showPrompt="showPrompt"
     />
+    <transition name="fade">
+      <div v-if="!hasLoaded">
+        <Spinner />
+      </div>
+    </transition>
     <ThreeScene
       :selectedData="selectedData"
       :selectedBoroughData="selectedBoroughData"
       @setBorough="showBoroughData"
       @introFinished="showHeaderPrompt"
+      @loaded="loaded"
     />
     <DatePicker
       @setDate="setDataToDate"
@@ -31,6 +37,8 @@ import ThreeScene from './components/three-scene.vue';
 import DatePicker from './components/date-picker.vue';
 import CaseBreakdown from './components/case-breakdown.vue';
 import Header from './components/header.vue';
+// eslint-disable-next-line import/no-unresolved
+import Spinner from './components/spinner.vue';
 
 export default {
   name: 'App',
@@ -39,6 +47,7 @@ export default {
     DatePicker,
     CaseBreakdown,
     Header,
+    Spinner,
   },
   data() {
     return {
@@ -49,6 +58,7 @@ export default {
       animateDepths: true,
       introFinished: false,
       showPrompt: false,
+      hasLoaded: false,
     };
   },
   methods: {
@@ -80,6 +90,9 @@ export default {
     hideBoroughData() {
       this.boroughCode = null;
       this.selectedBoroughData = {};
+    },
+    loaded() {
+      this.hasLoaded = true;
     },
   },
 };

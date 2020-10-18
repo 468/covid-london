@@ -76,6 +76,7 @@ export default {
   methods: {
     bindEvents() {
       manager.onLoad = (() => {
+        this.$emit('loaded');
         this.initThreeScene();
       });
       this.$refs.threeScene.addEventListener('mousemove', this.onMouseMove);
@@ -152,7 +153,7 @@ export default {
     },
     addEnvMap() {
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
-      const texture = new RGBELoader()
+      const texture = new RGBELoader(manager)
         .setDataType(THREE.UnsignedByteType)
         .load('./assets/hdr/waterbuck_trail_1k.hdr', (t) => {
           pmremGenerator.compileEquirectangularShader();
