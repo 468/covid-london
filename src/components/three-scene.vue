@@ -20,6 +20,40 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 
 import Tooltip from './tooltip.vue';
 
+const vertexShader = `
+  attribute float alpha;
+    varying float vAlpha;
+
+    void main() {
+      vAlpha = alpha;
+      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+      gl_PointSize = 7.0;
+      gl_Position = projectionMatrix * mvPosition;
+    }
+`;
+
+const fragmentShader = `
+  uniform vec3 color;
+    varying float vAlpha;
+    uniform float u_time;
+
+    void main() {
+      gl_FragColor = vec4(sin(u_time),0.1,0.1,0.1);
+    }
+`;
+
+const uniforms = {
+  color: { value: new THREE.Color(0xffff00) },
+  u_time: { type: 'f', value: 0 },
+};
+// point cloud material
+const shaderMaterial = new THREE.ShaderMaterial({
+  uniforms,
+  vertexShader,
+  fragmentShader,
+  transparent: false,
+});
+
 // set globals used by Three
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
@@ -302,11 +336,8 @@ export default {
       });
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-      const material = new THREE.PointsMaterial({
-        color: this.getRandomColour(),
-        size: 0.8,
-      });
-      const points = new THREE.Points(geometry, material);
+
+      const points = new THREE.Points(geometry, shaderMaterial);
       allPoints.push(points);
       scene.add(points);
     },
@@ -351,6 +382,17 @@ export default {
         controls.update();
         requestAnimationFrame(render);
         renderer.render(scene, camera);
+        if (shaderMaterial.uniforms.u_time.value > 5) {
+          // eslint-disable-next-line no-param-reassign
+          shaderMaterial.uniforms.u_time.value = 0.01;
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          shaderMaterial.uniforms.u_time.value += 0.05;
+        }
+
+        // eslint-disable-next-line no-param-reassign
+        shaderMaterial.uniforms.uniformsNeedUpdate = true;
+        // shaderMaterial.uniforms.u_time.value += 0.01;
       };
       render();
     },
