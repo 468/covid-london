@@ -12,47 +12,13 @@
 <script>
 import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
-// eslint-disable-next-line no-unused-vars
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
-// import { GeometryUtils } from 'three/examples/jsm/utils/GeometryUtils';
 
+import SHADERS from '@/assets/shaders';
+import fillHelper from '@/helpers/fillWithPoints';
 import Tooltip from './tooltip.vue';
-
-const vertexShader = `
-  attribute float alpha;
-    varying float vAlpha;
-
-    void main() {
-      vAlpha = alpha;
-      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-      gl_PointSize = 7.0;
-      gl_Position = projectionMatrix * mvPosition;
-    }
-`;
-
-const fragmentShader = `
-  uniform vec3 color;
-    varying float vAlpha;
-    uniform float u_time;
-
-    void main() {
-      gl_FragColor = vec4(sin(u_time),0.1,0.1,1.0);
-    }
-`;
-
-const uniforms = {
-  color: { value: new THREE.Color(0xffff00) },
-  u_time: { type: 'f', value: 0 },
-};
-// point cloud material
-const shaderMaterial = new THREE.ShaderMaterial({
-  uniforms,
-  vertexShader,
-  fragmentShader,
-  transparent: false,
-});
 
 // set globals used by Three
 const scene = new THREE.Scene();
@@ -65,8 +31,10 @@ const mouse = new THREE.Vector2();
 const controls = new OrbitControls(camera, renderer.domElement);
 const manager = new THREE.LoadingManager();
 const gltfLoader = new GLTFLoader(manager);
+const { vertexShader, fragmentShader } = SHADERS;
 
 let mapMesh;
+let shaderMaterial;
 
 export default {
   name: 'ThreeScene',
@@ -78,6 +46,7 @@ export default {
       hoveredBorough: null,
       mouseX: 0,
       mouseY: 0,
+      introFinished: false,
     };
   },
   mounted() {
@@ -112,7 +81,6 @@ export default {
       this.$refs.threeScene.addEventListener('mousemove', this.onMouseMove);
       this.$refs.threeScene.addEventListener('touchmove', this.onTouchMove);
       window.addEventListener('resize', this.onWindowResize, false);
-      // avoid interacting with UI clicks
       this.$refs.threeScene.addEventListener('click', this.onClick);
     },
     onMouseMove(e) {
@@ -132,46 +100,55 @@ export default {
       renderer.setSize(window.innerWidth, window.innerHeight);
     },
     onClick() {
-      if (this.hoveredBorough) {
+      if (this.hoveredBorough && this.introFinished) {
         this.$emit('setBorough', this.hoveredBorough);
       }
     },
     updateMousePosition() {
-      // might not need to use rect here.
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((this.mouseX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((this.mouseY - rect.top) / rect.height) * 2 + 1;
-      // mouse.x = (x / window.innerWidth) * 2 - 1;
-      // mouse.y = -(y / window.innerHeight) * 2 - 1;
       if (sceneObjects.length > 0) {
         this.raycast();
       }
     },
     initThreeScene() {
-      // camera.lookAt(0, 0, 0);
       controls.autoRotate = true;
       camera.position.set(0, 0, 100);
       controls.autoRotateSpeed = 1;
       controls.enableZoom = false;
       controls.enablePan = false;
-      // camera.up.set(-1, 0, 0).normalize();
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(window.innerWidth, window.innerHeight);
       scene.add(camera);
       this.$refs.threeScene.appendChild(renderer.domElement);
+      this.createShader();
+      this.startIntro();
+      this.animate();
+    },
+    startIntro() {
       new TWEEN.Tween(camera.position).to({
         y: 70,
         z: 70,
       }, 10000)
         .easing(TWEEN.Easing.Quartic.InOut)
-        .start();
-
-      const geometry = new THREE.BoxGeometry(100, 50, 100);
-      const material = new THREE.MeshStandardMaterial({ color: 0x111111 });
-      const cube = new THREE.Mesh(geometry, material);
-      cube.position.setY(-25.1);
-      // scene.add(cube);
-      this.animate();
+        .start()
+        .onComplete(() => {
+          this.introFinished = true;
+          this.$emit('introFinished');
+        });
+    },
+    createShader() {
+      const uniforms = {
+        color: { value: new THREE.Color(0xffff00) },
+        u_time: { type: 'f', value: 0 },
+      };
+      shaderMaterial = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader,
+        fragmentShader,
+        transparent: false,
+      });
     },
     addEnvMap() {
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -200,8 +177,6 @@ export default {
         mapMesh = model;
         scene.add(mapMesh);
         mapMesh.castShadow = false;
-        // mapMesh.rotation.x = Math.PI / 2;
-        scene.updateMatrixWorld();
         const mapMaterial = new THREE.MeshPhysicalMaterial({
           roughness: 0.9,
           metalness: 0.3,
@@ -209,13 +184,9 @@ export default {
           transparent: true,
           transmission: 0.95,
           side: THREE.DoubleSide,
-          // normalMap: new THREE.TextureLoader()
-          //  .load('./assets/textures/empty.jpeg'),
         });
         mapMesh.traverse((child) => {
           const c = child;
-          // console.log(c);
-          c.castShadow = true;
           c.material = mapMaterial.clone();
           if (c.isMesh) {
             const color = this.getRandomColour();
@@ -247,9 +218,7 @@ export default {
         controls.autoRotate = false;
         mapMesh.traverse((child) => {
           if (child.name === this.selectedBoroughData.area_code) {
-            // controls.target = this.getCenterOfBoundingBox(child.geometry);
             const newTarget = this.getCenterOfBoundingBox(child.geometry);
-            // camera.position.set(0, 35, 35);
             new TWEEN.Tween(controls.target).to({
               x: newTarget.x,
               y: newTarget.y,
@@ -276,54 +245,6 @@ export default {
       middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
       return middle;
     },
-    // from https://discourse.threejs.org/t/how-fill-a-loaded-stl-mesh-not-simple-shapes-like-cube-etc-with-random-particles-and-animate-with-this-geometry-bound-in-three-js/4702/6
-    fillWithPoints(geometry, count) {
-      const ray = new THREE.Ray();
-      // const size = new THREE.Vector3();
-      geometry.computeBoundingBox();
-      const bbox = geometry.boundingBox;
-
-      const points = [];
-
-      const dir = new THREE.Vector3(1, 1, 1).normalize();
-      function isInside(v) {
-        ray.set(v, dir);
-        let counter = 0;
-
-        const pos = geometry.attributes.position;
-        const faces = pos.count / 3;
-        const vA = new THREE.Vector3(); const vB = new THREE.Vector3(); const
-          vC = new THREE.Vector3();
-
-        const intersect = new THREE.Vector3();
-
-        for (let i = 0; i < faces; i += 1) {
-          vA.fromBufferAttribute(pos, i * 3 + 0);
-          vB.fromBufferAttribute(pos, i * 3 + 1);
-          vC.fromBufferAttribute(pos, i * 3 + 2);
-          if (ray.intersectTriangle(vA, vB, vC, true, intersect)) counter += 1;
-        }
-
-        return counter % 2 === 1;
-      }
-
-      function setRandomVector(min, max) {
-        const v = new THREE.Vector3(
-          THREE.Math.randFloat(min.x, max.x),
-          THREE.Math.randFloat(min.y, max.y),
-          THREE.Math.randFloat(min.z, max.z),
-        );
-        if (!isInside(v)) { return setRandomVector(min, max); }
-        return v;
-      }
-
-      for (let i = 0; i < count; i += 1) {
-        const p = setRandomVector(bbox.min, bbox.max);
-        points.push(p);
-      }
-      return points;
-    },
-    // end
     destroyPoints() {
       allPoints.forEach((point) => {
         point.geometry.dispose();
@@ -335,14 +256,14 @@ export default {
       if (mapMesh) {
         mapMesh.traverse((child) => {
           if (child.name === this.selectedBoroughData.area_code) {
-            const points = this.fillWithPoints(child.geometry, this.selectedBoroughData.new_cases);
+            const points = fillHelper
+              .fillWithPoints(child.geometry, this.selectedBoroughData.new_cases);
             this.addPointsToMesh(points, child);
           }
         });
       }
     },
-    addPointsToMesh(pointLocations, mesh) {
-      console.log(mesh);
+    addPointsToMesh(pointLocations) {
       const vertices = [];
       pointLocations.forEach((point) => {
         vertices.push(point.x, point.y, point.z);
@@ -355,7 +276,6 @@ export default {
       scene.add(points);
     },
     raycast() {
-      // console.log(scene.children);
       raycaster.setFromCamera(mouse, camera);
       const intersection = raycaster.intersectObjects(sceneObjects, true);
       if (intersection.length > 0) {
@@ -375,15 +295,6 @@ export default {
                 1 + (0.0025 * borough.total_cases),
                 child.scale.z,
               );
-              // potentiall remove easing
-              /*
-              new TWEEN.Tween(child.scale).to({
-                z: 1 + (0.0025 * borough.total_cases),
-              }, 1000)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start();
-              */
-              // console.log('match found');
             }
           });
         }
@@ -396,16 +307,10 @@ export default {
         requestAnimationFrame(render);
         renderer.render(scene, camera);
         if (shaderMaterial.uniforms.u_time.value > 5) {
-          // eslint-disable-next-line no-param-reassign
           shaderMaterial.uniforms.u_time.value = 0.01;
         } else {
-          // eslint-disable-next-line no-param-reassign
           shaderMaterial.uniforms.u_time.value += 0.05;
         }
-
-        // eslint-disable-next-line no-param-reassign
-        shaderMaterial.uniforms.uniformsNeedUpdate = true;
-        // shaderMaterial.uniforms.u_time.value += 0.01;
       };
       render();
     },
@@ -413,7 +318,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
   #three-container {
     position: absolute;

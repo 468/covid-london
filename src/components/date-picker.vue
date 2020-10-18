@@ -18,7 +18,6 @@
 </template>
 
 <script>
-// dont forget can add :lazy=true to slider if overloaded
 import moment from 'moment';
 import CASE_DATA from '@/data/london-cases.json';
 import VueSlider from 'vue-slider-component';
@@ -40,7 +39,7 @@ export default {
       dateIndex: 0,
       dateArray: [],
       options: {
-        dotSize: 0,
+        dotSize: 12,
         height: 8,
       },
     };
@@ -57,18 +56,13 @@ export default {
     this.fillDateArray();
   },
   mounted() {
-    // console.log(this.dateArray);
     const startDate = moment(CASE_DATA[0].date);
     this.$emit('setDate', startDate.format('YYYY-MM-DD'));
     this.animate();
   },
   computed: {
-    // might not use.
     toggleText() {
       return this.animating ? 'Pause' : 'Play';
-    },
-    formattedDate() {
-      return this.dateArray[this.dateIndex];
     },
   },
   methods: {
@@ -79,7 +73,7 @@ export default {
           this.toggleState();
         }
         this.$refs.vueSlider.setIndex(index + 1);
-        setTimeout(() => { this.animate(); }, 100);
+        setTimeout(() => { this.animate(); }, 75);
       }
     },
     onUpdate(value) {
@@ -118,13 +112,13 @@ export default {
     margin: 0 auto;
 
     .toggler {
-      position: fixed;
       margin: 0 auto;
       bottom: 40px;
       border: 1px solid #ffffff;
       background: none;
       color: #ffffff;
       padding: 5px;
+      margin-top: 10px;
     }
 
     .selected-date {

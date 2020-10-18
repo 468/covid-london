@@ -1,22 +1,27 @@
 <template>
   <div id="app">
-    <Header />
+    <Header
+      :showPrompt="showPrompt"
+    />
     <ThreeScene
       :selectedData="selectedData"
       :selectedBoroughData="selectedBoroughData"
       @setBorough="showBoroughData"
+      @introFinished="showHeaderPrompt"
     />
     <DatePicker
       @setDate="setDataToDate"
       @pickerClicked="toggleAnimation"
       :animating="animateDepths"
     />
-    <div v-if="boroughCode">
-      <CaseBreakdown
-        :selectedBoroughData="selectedBoroughData"
-        @close="hideBoroughData"
-      />
-    </div>
+    <transition name="fade">
+      <div v-if="boroughCode">
+        <CaseBreakdown
+          :selectedBoroughData="selectedBoroughData"
+          @close="hideBoroughData"
+        />
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -42,6 +47,8 @@ export default {
       selectedBoroughData: {},
       boroughCode: null,
       animateDepths: true,
+      introFinished: false,
+      showPrompt: false,
     };
   },
   methods: {
@@ -52,13 +59,15 @@ export default {
       if (this.boroughCode) {
         this.showBoroughData();
       }
-      // works fine, but laggy.
-      // if (this.boroughCode) {
-      //   this.showBoroughData();
-      // }
+    },
+    showHeaderPrompt() {
+      if (!this.boroughCode) {
+        this.showPrompt = true;
+      }
     },
     showBoroughData(borough = this.boroughCode) {
       this.animateDepths = false;
+      this.showPrompt = false;
       if (borough !== this.boroughCode) { this.boroughCode = borough; }
       this.selectedBoroughData = this.selectedData.find(
         (data) => data.area_code === this.boroughCode,
@@ -69,7 +78,6 @@ export default {
       if (bool) { this.hideBoroughData(); }
     },
     hideBoroughData() {
-      // this.animateDepths = true;
       this.boroughCode = null;
       this.selectedBoroughData = {};
     },
@@ -93,5 +101,12 @@ export default {
     width: 100%;
     height: 100%;
     background-image: linear-gradient(#111111, #222222);
+
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity .5s;
+    }
+    .fade-enter, .fade-leave-to {
+      opacity: 0;
+    }
   }
 </style>

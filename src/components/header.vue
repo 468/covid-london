@@ -2,12 +2,21 @@
   <header id="header">
     <h1>Coronavirus Cases</h1>
     <h2>By London Borough, Over Time</h2>
+    <transition name="fade">
+        <div v-if="showPrompt">
+            <p>-</p>
+            <p>Click a borough to explore</p>
+        </div>
+    </transition>
   </header>
 </template>
 
 <script>
 export default {
   name: 'Header',
+  props: {
+    showPrompt: Boolean,
+  },
 };
 </script>
 
