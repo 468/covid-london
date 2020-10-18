@@ -37,7 +37,10 @@ export default {
   },
   watch: {
     animating() {
-      if (this.animating) { this.animate(); }
+      if (this.animating) {
+        this.restartIfNeeded();
+        this.animate();
+      }
     },
   },
   beforeMount() {
@@ -62,8 +65,10 @@ export default {
     animate() {
       if (this.animating) {
         const index = this.$refs.vueSlider.getIndex();
-        const newIndex = index + 1 >= this.dateArray.length ? 0 : index + 1;
-        this.$refs.vueSlider.setIndex(newIndex);
+        if (index + 1 >= this.dateArray.length) {
+          this.toggleState();
+        }
+        this.$refs.vueSlider.setIndex(index + 1);
         setTimeout(() => { this.animate(); }, 100);
       }
     },
@@ -71,8 +76,13 @@ export default {
       this.$emit('setDate', value);
     },
     toggleState() {
-      console.log('called');
       this.$emit('pickerClicked', !this.animating);
+    },
+    restartIfNeeded() {
+      if (this.animating && this.$refs.vueSlider.getIndex() + 1 >= this.dateArray.length) {
+        console.log('here');
+        this.$refs.vueSlider.setIndex(0);
+      }
     },
     fillDateArray() {
       // use moment to generate array of dates between start

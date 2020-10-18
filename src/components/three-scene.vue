@@ -27,7 +27,7 @@ const vertexShader = `
     void main() {
       vAlpha = alpha;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-      gl_PointSize = 7.0;
+      gl_PointSize = 5.0;
       gl_Position = projectionMatrix * mvPosition;
     }
 `;
@@ -146,7 +146,7 @@ export default {
     initThreeScene() {
       // camera.lookAt(0, 0, 0);
       controls.autoRotate = true;
-      camera.position.set(0, 70, 70);
+      camera.position.set(0, 0, 100);
       controls.autoRotateSpeed = 1;
       controls.enableZoom = false;
       controls.enablePan = false;
@@ -156,6 +156,12 @@ export default {
       scene.add(camera);
       this.$refs.threeScene.appendChild(renderer.domElement);
       this.animate();
+      new TWEEN.Tween(camera.position).to({
+        y: 70,
+        z: 70,
+      }, 10000)
+        .easing(TWEEN.Easing.Quartic.InOut)
+        .start();
     },
     addEnvMap() {
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -164,7 +170,7 @@ export default {
         .load('./assets/hdr/waterbuck_trail_1k.hdr', (t) => {
           pmremGenerator.compileEquirectangularShader();
           const hdrEnvMap = pmremGenerator.fromEquirectangular(t).texture;
-          scene.enviroment = hdrEnvMap;
+          scene.environment = hdrEnvMap;
           texture.dispose();
           pmremGenerator.dispose();
         });
@@ -172,7 +178,9 @@ export default {
     addLighting() {
       const light = new THREE.AmbientLight(0xffffff, 1);
       scene.add(light);
-      // this.addEnvMap();
+      this.addEnvMap();
+      // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      // scene.add(directionalLight);
     },
     getRandomColour() {
       return new THREE.Color(Math.random() * 0xffffff);
@@ -187,12 +195,12 @@ export default {
         // mapMesh.rotation.x = Math.PI / 2;
         scene.updateMatrixWorld();
         const mapMaterial = new THREE.MeshPhysicalMaterial({
-          roughness: 0.5,
-          metalness: 0.5,
-          // clearcoat: 1,
+          roughness: 0,
+          metalness: 0.4,
+          clearcoat: 0.9,
           transparent: true,
-          transmission: 0.91,
-          // side: THREE.DoubleSide,
+          transmission: 0.9,
+          side: THREE.DoubleSide,
           // normalMap: new THREE.TextureLoader()
           //  .load('./assets/textures/empty.jpeg'),
         });
@@ -246,7 +254,7 @@ export default {
               .easing(TWEEN.Easing.Quartic.InOut)
               .start();
             new TWEEN.Tween(camera.position).to({
-              x: newTarget.x + 5,
+              x: newTarget.x + 25,
               y: 50,
               z: newTarget.z + 10,
             }, 1000)
