@@ -90,7 +90,6 @@ export default {
     },
     restartIfNeeded() {
       if (this.animating && this.$refs.vueSlider.getIndex() + 1 >= this.dateArray.length) {
-        console.log('here');
         this.$refs.vueSlider.setIndex(0);
       }
     },

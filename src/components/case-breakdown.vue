@@ -21,22 +21,8 @@
 
 export default {
   name: 'CaseBreakdown',
-  data() {
-    return {
-    };
-  },
   props: {
     selectedBoroughData: Object,
-  },
-  watch: {
-    selectedBoroughData() {
-      console.log(this.selectedBoroughData);
-    },
-  },
-  mounted() {
-    // console.log(this.selectedBoroughData);
-  },
-  computed: {
   },
   methods: {
     close() {

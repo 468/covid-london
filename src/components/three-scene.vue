@@ -63,7 +63,9 @@ const sceneObjects = [];
 const allPoints = [];
 const mouse = new THREE.Vector2();
 const controls = new OrbitControls(camera, renderer.domElement);
-const gltfLoader = new GLTFLoader();
+const manager = new THREE.LoadingManager();
+const gltfLoader = new GLTFLoader(manager);
+
 let mapMesh;
 
 export default {
@@ -79,7 +81,6 @@ export default {
     };
   },
   mounted() {
-    this.initThreeScene();
     this.loadMapModel();
     this.addLighting();
     this.bindEvents();
@@ -105,11 +106,14 @@ export default {
   },
   methods: {
     bindEvents() {
-      window.addEventListener('mousemove', this.onMouseMove);
-      window.addEventListener('touchmove', this.onTouchMove);
+      manager.onLoad = (() => {
+        this.initThreeScene();
+      });
+      this.$refs.threeScene.addEventListener('mousemove', this.onMouseMove);
+      this.$refs.threeScene.addEventListener('touchmove', this.onTouchMove);
       window.addEventListener('resize', this.onWindowResize, false);
-      window.addEventListener('click', this.onClick);
-      // add mouse
+      // avoid interacting with UI clicks
+      this.$refs.threeScene.addEventListener('click', this.onClick);
     },
     onMouseMove(e) {
       e.preventDefault();
@@ -155,7 +159,6 @@ export default {
       renderer.setSize(window.innerWidth, window.innerHeight);
       scene.add(camera);
       this.$refs.threeScene.appendChild(renderer.domElement);
-      this.animate();
       new TWEEN.Tween(camera.position).to({
         y: 70,
         z: 70,
@@ -168,6 +171,7 @@ export default {
       const cube = new THREE.Mesh(geometry, material);
       cube.position.setY(-25.1);
       // scene.add(cube);
+      this.animate();
     },
     addEnvMap() {
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -291,11 +295,13 @@ export default {
         const vA = new THREE.Vector3(); const vB = new THREE.Vector3(); const
           vC = new THREE.Vector3();
 
+        const intersect = new THREE.Vector3();
+
         for (let i = 0; i < faces; i += 1) {
           vA.fromBufferAttribute(pos, i * 3 + 0);
           vB.fromBufferAttribute(pos, i * 3 + 1);
           vC.fromBufferAttribute(pos, i * 3 + 2);
-          if (ray.intersectTriangle(vA, vB, vC)) counter += 1;
+          if (ray.intersectTriangle(vA, vB, vC, true, intersect)) counter += 1;
         }
 
         return counter % 2 === 1;
@@ -330,7 +336,6 @@ export default {
         mapMesh.traverse((child) => {
           if (child.name === this.selectedBoroughData.area_code) {
             const points = this.fillWithPoints(child.geometry, this.selectedBoroughData.new_cases);
-            console.log(points);
             this.addPointsToMesh(points, child);
           }
         });
