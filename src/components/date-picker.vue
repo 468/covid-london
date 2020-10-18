@@ -1,12 +1,12 @@
 <template>
   <div id="date-picker">
-    <p class="selected-date">
-        {{ formattedDate }}
-    </p>
+    <button @click="toggleState">{{ toggleText }}</button>
     <vue-slider
         v-model="dateIndex"
         :data="dateArray"
         @change="onUpdate"
+        :tooltip="'always'"
+        ref="vueSlider"
     ></vue-slider>
   </div>
 </template>
@@ -23,11 +23,22 @@ export default {
   components: {
     VueSlider,
   },
+  props: {
+    animating: {
+      default: true,
+      type: Boolean,
+    },
+  },
   data() {
     return {
       dateIndex: 0,
       dateArray: [],
     };
+  },
+  watch: {
+    animating() {
+      if (this.animating) { this.animate(); }
+    },
   },
   beforeMount() {
     this.fillDateArray();
@@ -36,16 +47,32 @@ export default {
     // console.log(this.dateArray);
     const startDate = moment(CASE_DATA[0].date);
     this.$emit('setDate', startDate.format('YYYY-MM-DD'));
+    this.animate();
   },
   computed: {
     // might not use.
+    toggleText() {
+      return this.animating ? 'pause' : 'play';
+    },
     formattedDate() {
       return this.dateArray[this.dateIndex];
     },
   },
   methods: {
+    animate() {
+      if (this.animating) {
+        const index = this.$refs.vueSlider.getIndex();
+        const newIndex = index + 1 >= this.dateArray.length ? 0 : index + 1;
+        this.$refs.vueSlider.setIndex(newIndex);
+        setTimeout(() => { this.animate(); }, 100);
+      }
+    },
     onUpdate(value) {
       this.$emit('setDate', value);
+    },
+    toggleState() {
+      console.log('called');
+      this.$emit('pickerClicked', !this.animating);
     },
     fillDateArray() {
       // use moment to generate array of dates between start

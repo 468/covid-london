@@ -43,8 +43,10 @@ export default {
   },
   methods: {
     moveToolTip() {
-      this.$refs.tooltipContainer.style.left = `${this.mouseX + 50}px`;
-      this.$refs.tooltipContainer.style.top = `${this.mouseY}px`;
+      if (this.hoveredBorough) {
+        this.$refs.tooltipContainer.style.left = `${this.mouseX + 50}px`;
+        this.$refs.tooltipContainer.style.top = `${this.mouseY}px`;
+      }
     },
   },
 };
