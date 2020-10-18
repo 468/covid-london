@@ -63,6 +63,7 @@ export default {
     opacity: 0.75;
     top: 0;
     left: 0;
+    padding: 0 10px;
     background-color: #000000;
     color: #ffffff;
   }

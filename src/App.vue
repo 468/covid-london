@@ -50,7 +50,7 @@ export default {
         (data) => data.date === date,
       );
       if (this.boroughCode) {
-        this.hideBoroughData();
+        this.showBoroughData();
       }
       // works fine, but laggy.
       // if (this.boroughCode) {
@@ -66,6 +66,7 @@ export default {
     },
     toggleAnimation(bool) {
       this.animateDepths = bool;
+      if (bool) { this.hideBoroughData(); }
     },
     hideBoroughData() {
       // this.animateDepths = true;
