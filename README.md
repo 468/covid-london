@@ -1,5 +1,10 @@
 # covid-london
 
+## About
+
+An 3D interactive map of London coronavirus cases over time. Built using Vue and Three, for desktop devices.
+
+
 ## Project setup
 ```
 npm install
