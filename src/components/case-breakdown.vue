@@ -2,6 +2,12 @@
   <div
     id="case-breakdown"
   >
+    <button
+      @click="close"
+      id='close'
+    >
+      x
+    </button>
     <h1>Borough: {{ selectedBoroughData.area_name }}</h1>
     <p>Date: {{ selectedBoroughData.date}}</p>
     <p>New cases: {{ selectedBoroughData.new_cases}}</p>
@@ -31,6 +37,9 @@ export default {
   computed: {
   },
   methods: {
+    close() {
+      this.$emit('close');
+    },
   },
 };
 </script>
@@ -42,8 +51,17 @@ export default {
       z-index: 3;
       right: 0;
       width: 25%;
+      margin: 25px;
+      padding: 5px;
       background-color: #333333;
-      height: 100%;
+      height: auto;
       color: #ffffff;
+      text-align: left;
+
+      h1 {
+        font-size: 1em;
+        margin: 0;
+        padding: 0;
+      }
   }
 </style>
