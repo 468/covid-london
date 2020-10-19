@@ -21,6 +21,7 @@
     position: absolute;
 
     .loader {
+      position: absolute;
       margin: 100px auto;
       font-size: 25px;
       width: 0.1em;
