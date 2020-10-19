@@ -119,7 +119,7 @@ export default {
       controls.autoRotateSpeed = 1;
       controls.enableZoom = false;
       controls.enablePan = false;
-      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setPixelRatio(window.devicePixelRatio / 2);
       renderer.setSize(window.innerWidth, window.innerHeight);
       scene.add(camera);
       this.$refs.threeScene.appendChild(renderer.domElement);
@@ -165,9 +165,9 @@ export default {
     },
     addLighting() {
       const light = new THREE.AmbientLight(0xffffff, 1);
-      const dirLight = new THREE.DirectionalLight(0xffffbb, 1);
+      // const dirLight = new THREE.DirectionalLight(0xffffbb, 1);
       scene.add(light);
-      scene.add(dirLight);
+      // scene.add(dirLight);
       this.addEnvMap();
     },
     getRandomColour() {
